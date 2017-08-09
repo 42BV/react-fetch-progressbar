@@ -5,6 +5,8 @@
 
 Show a ProgressBar in React whenever a fetch request is in progress.
 
+You can view a [demo here.]( https://codesandbox.io/embed/g5jmo1Q8Z?view=preview)
+
 # Features
 
 1. Only shows the ProgressBar when requests take more than 150 milliseconds.
