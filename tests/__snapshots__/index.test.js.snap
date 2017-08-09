@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Component: ProgressBar ui custom style 1`] = `
+<div
+  className="react-fetch-progress-bar"
+  style={
+    Object {
+      "backgroundColor": "red",
+      "height": "10px",
+      "left": "10px",
+      "position": "absolute",
+      "top": "0",
+      "transition": "width 30s ease-in",
+      "width": "80%",
+      "zIndex": "9000",
+    }
+  }
+/>
+`;
+
+exports[`Component: ProgressBar ui mode: active 1`] = `
+<div
+  className="react-fetch-progress-bar"
+  style={
+    Object {
+      "backgroundColor": "#f0ad4e",
+      "height": "4px",
+      "position": "absolute",
+      "top": "0",
+      "transition": "width 30s ease-in",
+      "width": "80%",
+      "zIndex": "9000",
+    }
+  }
+/>
+`;
+
+exports[`Component: ProgressBar ui mode: complete 1`] = `
+<div
+  className="react-fetch-progress-bar"
+  style={
+    Object {
+      "backgroundColor": "#f0ad4e",
+      "height": "4px",
+      "position": "absolute",
+      "top": "0",
+      "transition": "width 0.8s ease-in",
+      "width": "100%",
+      "zIndex": "9000",
+    }
+  }
+/>
+`;
+
+exports[`Component: ProgressBar ui mode: inactive 1`] = `
+<div
+  className="react-fetch-progress-bar"
+  style={
+    Object {
+      "backgroundColor": "#f0ad4e",
+      "height": "4px",
+      "position": "absolute",
+      "top": "0",
+      "transition": "",
+      "width": "0%",
+      "zIndex": "9000",
+    }
+  }
+/>
+`;

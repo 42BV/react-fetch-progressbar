@@ -1,0 +1,56 @@
+{
+  "name": "react-fetch-progressbar",
+  "version": "0.0.1",
+  "description": "Show a ProgressBar in React whenever a fetch request is in progress.",
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/42BV/react-fetch-progressbar.git"
+  },
+  "keywords": [
+    "React",
+    "Fetch",
+    "Progressbar"
+  ],
+  "author": "Maarten Hus",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/42BV/react-fetch-progressbar/issues"
+  },
+  "homepage": "https://github.com/42BV/react-fetch-progressbar#readme",
+  "peerDependencies": {
+    "react": "^15.6.1"
+  },
+  "devDependencies": {
+    "babel": "6.23.0",
+    "babel-cli": "6.24.0",
+    "babel-jest": "20.0.3",
+    "babel-plugin-transform-class-properties": "6.24.1",
+    "babel-plugin-transform-flow-strip-types": "6.22.0",
+    "babel-plugin-transform-object-rest-spread": "6.23.0",
+    "babel-plugin-transform-runtime": "6.23.0",
+    "babel-preset-es2015": "6.24.1",
+    "babel-preset-react": "6.24.1",
+    "babel-runtime": "6.25.0",
+    "enzyme": "2.9.1",
+    "enzyme-to-json": "1.5.1",
+    "flow-bin": "0.52.0",
+    "flow-copy-source": "1.2.0",
+    "jest": "20.0.4",
+    "react": "15.6.1",
+    "react-dom": "15.6.1",
+    "react-test-renderer": "15.6.1"
+  },
+  "scripts": {
+    "start": "jest test --watch",
+    "test": "npm run flow && jest test --coverage",
+    "coverage": "npm test -- --coverage",
+    "flow": "flow version && flow",
+    "prepublish": "rm -rf lib && npm test && npm run babel-prepublish && npm run flow-prepublish",
+    "babel-prepublish": "babel src/ -d lib",
+    "flow-prepublish": "flow-copy-source -v src lib"
+  }
+}
