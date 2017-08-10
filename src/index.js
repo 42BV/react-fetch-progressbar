@@ -5,19 +5,29 @@ import React, { Component } from 'react';
 // Keeps track of how many requests are currently active.
 export let activeRequests = 0;
 
+/* 
+  Store a reference to the ProgressBar so 'progressBarFetch' can
+  move the ProgressBar to the 'init' state.
+*/
+export let progressBar: ProgressBar;
+
 /*
   The modes form a state machine with the following flow
 
-  inactive -> active -> complete -
-  ^                               |
-  |                               |
-  --------------------------------
+  init -----> active -> complete --
+  ^  \                            |
+  |   \----\                      |
+  |         \                     |
+  |          \                    |
+  |           ▾                   | 
+  ---------  hibernate <-----------
 
-  inactive: no animation is running the bar is invisible
+  hibernate: no animation is running the bar is invisible
+  init: Preparing to potentially show the animation.
   active: the animation is running slowly to 80%
   complete: the animation runs quickly to 100%
 */
-type Mode = 'inactive' | 'active' | 'complete';
+type Mode = 'hibernate' | 'init' | 'active' | 'complete';
 
 type Props = {
   style?: Object
@@ -29,21 +39,17 @@ type State = {
 
 export class ProgressBar extends Component<void, Props, State> {
   state = {
-    mode: 'inactive'
+    mode: 'hibernate'
   };
 
-  // Start the initial tick
+  // Set the reference to progressBar
   componentDidMount() {
-    this.tick();
+    progressBar = this;
   }
 
   // Only render if the mode changes
   shouldComponentUpdate(nextProps: Props, nextState: State) {
-    if (nextState.mode !== this.state.mode) {
-      return true;
-    }
-
-    return false;
+    return nextState.mode !== this.state.mode;
   }
 
   /**
@@ -51,18 +57,15 @@ export class ProgressBar extends Component<void, Props, State> {
    * requests are currently active, and will accordingly move
    * to another state.
    * 
-   * It is important that the tick always calls itself after
-   * a while or the cycle will be broken.
-   * 
    * @memberof ProgressBar
    */
   tick() {
     const mode = this.state.mode;
 
     if (mode === 'complete') {
-      //console.log('complete: moving to inactive after 1 second to allow the close animation to complete');
+      //console.log('complete: moving to hibernate after 1 second to allow the close animation to complete');
       setTimeout(() => {
-        this.moveToMode('inactive');
+        this.setState({ mode: 'hibernate' });
       }, 1000);
     } else if (mode === 'active') {
       if (activeRequests === 0) {
@@ -81,22 +84,28 @@ export class ProgressBar extends Component<void, Props, State> {
         this.tickWithDelay();
       }
     } else {
-      // mode === 'inactive'
+      // mode === 'init'
       if (activeRequests > 0) {
-        //console.log('inactive: there are pending request move to active if there are still pending requests after 100 milliseconds');
+        //console.log('init: there are pending request move to active if there are still pending requests after 100 milliseconds');
         setTimeout(() => {
           if (activeRequests > 0) {
-            //console.log('inactive: even after 100 milliseconds there are pending request, moving to active to trigger animation');
+            //console.log('init: even after 100 milliseconds there are pending request, moving to active to trigger animation');
             this.moveToMode('active');
           } else {
-            //console.log('inactive: after 100 milliseconds there were no pending request, the requests was so fast that showing an animation is unnecessary, staying inactive');
-            this.tick();
+            //console.log('init: after 100 milliseconds there were no pending request, the requests was so fast that showing an animation is unnecessary, move to hibernate');
+            this.setState({ mode: 'hibernate'});
           }
         }, 100);
       } else {
-        //console.log('inactive: no pending requests staying inactive');
-        this.tickWithDelay();
+        //console.log('init: no pending requests move to hibernate');
+        this.setState({ mode: 'hibernate'});
       }
+    }
+  }
+
+  moveToInit() {
+    if (this.state.mode === 'hibernate') {
+      this.moveToMode('init');
     }
   }
 
@@ -115,9 +124,14 @@ export class ProgressBar extends Component<void, Props, State> {
   render() {
     const mode = this.state.mode;
 
-    const width = mode === 'complete' ? 100 : mode === 'inactive' ? 0 : 80;
+    if (mode === 'hibernate') {
+      return null;
+    }
+
+    const width = mode === 'complete' ? 100 : mode === 'init' ? 0 : 80;
     const animationSpeed = mode === 'complete' ? 0.8 : 30;
-    const transition = mode === 'inactive' ? '' : `width ${animationSpeed}s ease-in`;
+    const transition =
+      mode === 'init' ? '' : `width ${animationSpeed}s ease-in`;
 
     const style = {
       position: 'absolute',
@@ -134,7 +148,10 @@ export class ProgressBar extends Component<void, Props, State> {
   }
 }
 
-type FetchSignature = (url: string, options?: RequestOptions) => Promise<Response>;
+type FetchSignature = (
+  url: string,
+  options?: RequestOptions
+) => Promise<Response>;
 
 // We store the fetch here as provided by the user.
 let originalFetch: FetchSignature;
@@ -160,6 +177,10 @@ export function progressBarFetch(
   options?: RequestOptions
 ): Promise<Response> {
   activeRequests += 1;
+
+  if (progressBar) {
+    progressBar.moveToInit();
+  }
 
   return originalFetch(url, options)
     .then(response => {

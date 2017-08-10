@@ -52,7 +52,7 @@ exports[`Component: ProgressBar ui mode: complete 1`] = `
 />
 `;
 
-exports[`Component: ProgressBar ui mode: inactive 1`] = `
+exports[`Component: ProgressBar ui mode: init 1`] = `
 <div
   className="react-fetch-progress-bar"
   style={

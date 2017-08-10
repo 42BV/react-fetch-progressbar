@@ -49,6 +49,9 @@ import { ProgressBar } from 'react-fetch-progressbar';
 <ProgressBar />
 ```
 
+WARNING: only render one ProgressBar at a time, otherwise the two
+progressBars will interfere with each other.
+
 # Styling the ProgressBar
 
 You have a two options, either provide a style object or create

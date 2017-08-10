@@ -9,6 +9,7 @@ import {
   progressBarFetch,
   setActiveRequests,
   activeRequests,
+  progressBar as progressBarRef,
   setOriginalFetch
 } from '../src/index';
 
@@ -21,8 +22,14 @@ describe('Component: ProgressBar', () => {
       progressBar.setState({ mode });
     }
 
-    test('mode: inactive', () => {
-      setup({ mode: 'inactive', style: undefined });
+    test('mode: hibernate', () => {
+      setup({ mode: 'hibernate', style: undefined });
+
+      expect(toJson(progressBar)).toBe(null);
+    });
+
+    test('mode: init', () => {
+      setup({ mode: 'init', style: undefined });
 
       expect(toJson(progressBar)).toMatchSnapshot();
     });
@@ -50,29 +57,29 @@ describe('Component: ProgressBar', () => {
   });
 
   describe('lifecycle methods', () => {
-    test('componentDidMount', () => {
+    it('should when componentDidMount set the progressBar reference', () => {
       const progressBar = new ProgressBar();
-
-      jest.spyOn(progressBar, 'tick').mockReturnValue(42);
 
       progressBar.componentDidMount();
 
-      expect(progressBar.tick).toHaveBeenCalledTimes(1);
+      expect(progressBarRef).toBe(progressBar);
     });
 
-    test('shouldComponentUpdate', () => {
-      const progressBar = new ProgressBar({ color: 'orange' });
+    it('should when shouldComponentUpdate is called only return true when the mode changes', () => {
+      const progressBar = new ProgressBar({ style: { color: 'orange' } });
+
+      progressBar.state.mode = 'complete';
 
       expect(
         progressBar.shouldComponentUpdate(
-          { color: 'blue' },
-          { mode: 'inactive' }
+          { style: { color: 'blue' } },
+          { mode: 'complete' }
         )
       ).toBe(false);
 
       expect(
         progressBar.shouldComponentUpdate(
-          { color: 'orange' },
+          { style: { color: 'orange' } },
           { mode: 'active' }
         )
       ).toBe(true);
@@ -107,7 +114,7 @@ describe('Component: ProgressBar', () => {
         expect(progressBar.state().mode).toBe('active');
       });
 
-      it('should stay "inactive" when there are pending request, but after 150 milliseconds no pending requests anymore', () => {
+      it('should move back to "hibernate" when there are pending request, but after 150 milliseconds no pending requests anymore', () => {
         const progressBar = shallow(<ProgressBar />);
 
         setActiveRequests(1);
@@ -122,10 +129,10 @@ describe('Component: ProgressBar', () => {
         setActiveRequests(0);
 
         jest.runTimersToTime(100);
-        expect(progressBar.state().mode).toBe('inactive');
+        expect(progressBar.state().mode).toBe('hibernate');
       });
 
-      it('should stay "inactive" when there are no pending requests', () => {
+      it('should move to "hibernate" when there are no pending requests', () => {
         const progressBar = shallow(<ProgressBar />);
 
         setActiveRequests(0);
@@ -136,7 +143,7 @@ describe('Component: ProgressBar', () => {
 
         jest.runTimersToTime(50);
 
-        expect(progressBar.state().mode).toBe('inactive');
+        expect(progressBar.state().mode).toBe('hibernate');
       });
     });
 
@@ -191,7 +198,7 @@ describe('Component: ProgressBar', () => {
     });
 
     describe('mode: complete', () => {
-      it('should move to "inactive" after 1000 milliseconds to allow the animation to complete', () => {
+      it('should move to "hibernate" after 1000 milliseconds to allow the animation to complete', () => {
         const progressBar = shallow(<ProgressBar />);
         progressBar.setState({ mode: 'complete' });
 
@@ -204,29 +211,59 @@ describe('Component: ProgressBar', () => {
 
         jest.runTimersToTime(1000);
 
-        expect(progressBar.state().mode).toBe('inactive');
+        expect(progressBar.state().mode).toBe('hibernate');
       });
+    });
+  });
+
+  describe('moveToInit', () => {
+    it('should move to "init" when mode is "hibernate"', () => {
+      const progressBar = new ProgressBar();
+
+      spyOn(progressBar, 'moveToMode');
+
+      progressBar.state.mode = 'hibernate';
+      progressBar.moveToInit();
+
+      expect(progressBar.moveToMode).toHaveBeenCalledTimes(1);
+      expect(progressBar.moveToMode).toHaveBeenCalledWith('init');
+    });
+
+    it('should not move to "init" when mode is another mode', () => {
+      const progressBar = new ProgressBar();
+
+      spyOn(progressBar, 'moveToMode');
+
+      progressBar.state.mode = 'active';
+      progressBar.moveToInit();
+
+      expect(progressBar.moveToMode).toHaveBeenCalledTimes(0);
     });
   });
 });
 
 describe('progressBarFetch', () => {
-  let fetch;
+  let fakeFetch;
 
   beforeEach(() => {
-    fetch = jest.fn();
+    fakeFetch = jest.fn();
 
-    setOriginalFetch(fetch);
+    const progressBar = new ProgressBar();
+    progressBar.componentDidMount();
+
+    spyOn(progressBarRef, 'moveToInit');
+
+    setOriginalFetch(fakeFetch);
     setActiveRequests(0);
   });
 
-  it('should increase "activeRequests" when making a request and decrease on success', done => {
+  it('should increase "activeRequests" when making a request and decrease on success, and init the progressBar', done => {
     let resolve;
     const promise = new Promise((res, rej) => {
       resolve = res;
     });
 
-    fetch.mockReturnValue(promise);
+    fakeFetch.mockReturnValue(promise);
 
     expect(activeRequests).toBe(0);
 
@@ -235,10 +272,13 @@ describe('progressBarFetch', () => {
     expect(activeRequests).toBe(1);
 
     // $FlowFixMe
-    resolve({ status: 200 });
+    expect(progressBarRef.moveToInit).toHaveBeenCalledTimes(1);
 
-    expect(fetch).toHaveBeenCalledTimes(1);
-    expect(fetch).toHaveBeenCalledWith('/hello-world', undefined);
+    expect(fakeFetch).toHaveBeenCalledTimes(1);
+    expect(fakeFetch).toHaveBeenCalledWith('/hello-world', undefined);
+
+    // $FlowFixMe
+    resolve({ status: 200 });
 
     promise.then(response => {
       expect(response.status).toBe(200);
@@ -248,13 +288,13 @@ describe('progressBarFetch', () => {
     });
   });
 
-  it('should increase "activeRequests" when making a request and decrease on failure', done => {
+  it('should increase "activeRequests" when making a request and decrease on failure, and init the progressBar', done => {
     let reject;
     const promise = new Promise((res, rej) => {
       reject = rej;
     });
 
-    fetch.mockReturnValue(promise);
+    fakeFetch.mockReturnValue(promise);
 
     expect(activeRequests).toBe(0);
 
@@ -263,10 +303,15 @@ describe('progressBarFetch', () => {
     expect(activeRequests).toBe(1);
 
     // $FlowFixMe
-    reject({ status: 500 });
+    expect(progressBarRef.moveToInit).toHaveBeenCalledTimes(1);
 
-    expect(fetch).toHaveBeenCalledTimes(1);
-    expect(fetch).toHaveBeenCalledWith('/goodbye-world', { method: 'POST' });
+    expect(fakeFetch).toHaveBeenCalledTimes(1);
+    expect(fakeFetch).toHaveBeenCalledWith('/goodbye-world', {
+      method: 'POST'
+    });
+
+    // $FlowFixMe
+    reject({ status: 500 });
 
     promise.catch(error => {
       expect(error.status).toBe(500);
@@ -276,5 +321,17 @@ describe('progressBarFetch', () => {
         done();
       }, 10);
     });
+  });
+
+  it('should not init the progressBar when the ref is not defined', () => {
+    const progressBar = new ProgressBar();
+    const componentDidMount = progressBar.componentDidMount;
+    componentDidMount.bind(undefined)();
+
+    fakeFetch.mockReturnValue(Promise.resolve());
+
+    progressBarFetch('/goodbye-world', { method: 'POST' });
+
+    expect(progressBarRef).toBe(undefined);
   });
 });
