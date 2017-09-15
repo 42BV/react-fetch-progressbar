@@ -328,6 +328,7 @@ describe('progressBarFetch', () => {
     const componentDidMount = progressBar.componentDidMount;
     componentDidMount.bind(undefined)();
 
+    // $FlowFixMe
     fakeFetch.mockReturnValue(Promise.resolve());
 
     progressBarFetch('/goodbye-world', { method: 'POST' });

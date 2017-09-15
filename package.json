@@ -1,6 +1,6 @@
 {
   "name": "react-fetch-progressbar",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Show a ProgressBar in React whenever a fetch request is in progress.",
   "files": [
     "lib"
@@ -37,7 +37,7 @@
     "babel-runtime": "6.25.0",
     "enzyme": "2.9.1",
     "enzyme-to-json": "1.5.1",
-    "flow-bin": "0.52.0",
+    "flow-bin": "0.54.1",
     "flow-copy-source": "1.2.0",
     "jest": "20.0.4",
     "react": "15.6.1",

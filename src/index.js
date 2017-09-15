@@ -37,7 +37,7 @@ type State = {
   mode: Mode
 };
 
-export class ProgressBar extends Component<void, Props, State> {
+export class ProgressBar extends Component<Props, State> {
   state = {
     mode: 'hibernate'
   };
