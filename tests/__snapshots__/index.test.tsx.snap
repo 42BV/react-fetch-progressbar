@@ -12,7 +12,7 @@ exports[`Component: ProgressBar ui custom style 1`] = `
       "top": "0",
       "transition": "width 30s ease-in",
       "width": "80%",
-      "zIndex": "9000",
+      "zIndex": 9000,
     }
   }
 />
@@ -29,7 +29,7 @@ exports[`Component: ProgressBar ui mode: active 1`] = `
       "top": "0",
       "transition": "width 30s ease-in",
       "width": "80%",
-      "zIndex": "9000",
+      "zIndex": 9000,
     }
   }
 />
@@ -46,7 +46,7 @@ exports[`Component: ProgressBar ui mode: complete 1`] = `
       "top": "0",
       "transition": "width 0.8s ease-in",
       "width": "100%",
-      "zIndex": "9000",
+      "zIndex": 9000,
     }
   }
 />
@@ -63,7 +63,7 @@ exports[`Component: ProgressBar ui mode: init 1`] = `
       "top": "0",
       "transition": "",
       "width": "0%",
-      "zIndex": "9000",
+      "zIndex": 9000,
     }
   }
 />

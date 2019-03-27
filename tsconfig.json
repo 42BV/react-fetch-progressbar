@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "declaration": true,
+    "downlevelIteration": true,
+    "lib": ["dom", "es6", "es2015.promise"],
+    "module": "commonjs",
+    "moduleResolution": "Node",
+    "outDir": "./lib",
+    "strict": true,
+    "target": "es6",
+    "jsx": "react",
+    "esModuleInterop": true
+  },
+  "files": ["src/index.tsx"],
+  "exclude": ["node_modules"]
+}
