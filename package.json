@@ -47,7 +47,7 @@
   },
   "scripts": {
     "start": "jest test --watch",
-    "test": "npm run lint && jest test",
+    "test": "npm run lint && jest test --coverage",
     "ts": "tsc --version && tsc",
     "coverage": "npm test -- --coverage",
     "lint": "eslint \"src/**\"",
