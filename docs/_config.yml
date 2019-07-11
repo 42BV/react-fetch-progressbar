@@ -1,0 +1,6 @@
+remote_theme: 42bv/fortytwo
+title: 'react-fetch-progressbar'
+description: 'Progressbar during fetch requests'
+baseurl: /react-fetch-progressbar/
+plugins:
+  - jekyll-remote-theme
