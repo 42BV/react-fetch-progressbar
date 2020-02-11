@@ -154,7 +154,7 @@ export class ProgressBar extends Component<Props, State> {
   }
 }
 
-type FetchSignature = (url: string, options?: object) => Promise<Response>;
+type FetchSignature = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
 // We store the fetch here as provided by the user.
 let originalFetch: FetchSignature;
