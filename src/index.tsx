@@ -28,7 +28,7 @@ export let progressBar: ProgressBar;
 type Mode = 'hibernate' | 'init' | 'active' | 'complete' | 'inactive';
 
 interface Props {
-  style?: Record<string, any>;
+  style?: React.CSSProperties;
   render?: (mode: Mode) => JSX.Element;
 }
 
