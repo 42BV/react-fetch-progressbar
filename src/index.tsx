@@ -129,7 +129,7 @@ export class ProgressBar extends Component<Props, State> {
     
     if(this.props.render) {
       if(this.props.style) {
-        throw new Error('Can\'t set style and custom render function at the same time.');
+        throw new Error("Can't set style and custom render function at the same time.");
       }
       
       return this.props.render(mode);
