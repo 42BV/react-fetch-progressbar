@@ -28,7 +28,8 @@ export let progressBar: ProgressBar;
 type Mode = 'hibernate' | 'init' | 'active' | 'complete' | 'inactive';
 
 interface Props {
-  style?: Record<string, any>;
+  style?: React.CSSProperties;
+  render?: (mode: Mode) => JSX.Element;
 }
 
 interface State {
@@ -126,6 +127,14 @@ export class ProgressBar extends Component<Props, State> {
       return null;
     }
 
+    if (this.props.render) {
+      if (this.props.style) {
+        throw new Error("Can't set style and custom render function at the same time.");
+      }
+
+      return this.props.render(mode);
+    }
+
     const width = mode === 'complete' ? 100 : mode === 'init' ? 0 : 80;
     const animationSpeed = mode === 'complete' ? 0.8 : 30;
     const transition = mode === 'init' ? '' : `width ${animationSpeed}s ease-in`;
@@ -145,7 +154,7 @@ export class ProgressBar extends Component<Props, State> {
   }
 }
 
-type FetchSignature = (url: string, options?: object) => Promise<Response>;
+type FetchSignature = (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
 // We store the fetch here as provided by the user.
 let originalFetch: FetchSignature;
@@ -166,7 +175,7 @@ export function setOriginalFetch(nextOriginalFetch: FetchSignature): void {
  * @param {RequestOptions} [options] The options you want to pass for that request
  * @returns {Promise<Response>} A Promise which returns a Response
  */
-export async function progressBarFetch(url: string, options?: object): Promise<Response> {
+export async function progressBarFetch(input: RequestInfo, init?: RequestInit): Promise<Response> {
   activeRequests += 1;
 
   if (progressBar) {
@@ -174,7 +183,7 @@ export async function progressBarFetch(url: string, options?: object): Promise<R
   }
 
   try {
-    const response = await originalFetch(url, options);
+    const response = await originalFetch(input, init);
     activeRequests -= 1;
     return response;
   } catch (error) {
