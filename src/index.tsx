@@ -126,12 +126,12 @@ export class ProgressBar extends Component<Props, State> {
     if (mode === 'hibernate') {
       return null;
     }
-    
-    if(this.props.render) {
-      if(this.props.style) {
+
+    if (this.props.render) {
+      if (this.props.style) {
         throw new Error("Can't set style and custom render function at the same time.");
       }
-      
+
       return this.props.render(mode);
     }
 
