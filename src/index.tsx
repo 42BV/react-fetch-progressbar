@@ -29,6 +29,7 @@ type Mode = 'hibernate' | 'init' | 'active' | 'complete' | 'inactive';
 
 interface Props {
   style?: Record<string, any>;
+  render?: (mode: Mode) => JSX.Element;
 }
 
 interface State {
@@ -124,6 +125,14 @@ export class ProgressBar extends Component<Props, State> {
 
     if (mode === 'hibernate') {
       return null;
+    }
+    
+    if(this.props.render) {
+      if(this.props.style) {
+        throw new Error('Can\'t set style and custom render function at the same time.');
+      }
+      
+      return this.props.render(mode);
     }
 
     const width = mode === 'complete' ? 100 : mode === 'init' ? 0 : 80;
