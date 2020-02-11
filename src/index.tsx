@@ -175,7 +175,7 @@ export function setOriginalFetch(nextOriginalFetch: FetchSignature): void {
  * @param {RequestOptions} [options] The options you want to pass for that request
  * @returns {Promise<Response>} A Promise which returns a Response
  */
-export async function progressBarFetch(url: string, options?: object): Promise<Response> {
+export async function progressBarFetch(input: RequestInfo, init?: RequestInit): Promise<Response> {
   activeRequests += 1;
 
   if (progressBar) {
@@ -183,7 +183,7 @@ export async function progressBarFetch(url: string, options?: object): Promise<R
   }
 
   try {
-    const response = await originalFetch(url, options);
+    const response = await originalFetch(input, init);
     activeRequests -= 1;
     return response;
   } catch (error) {
